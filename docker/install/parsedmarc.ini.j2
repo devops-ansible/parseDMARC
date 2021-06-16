@@ -1,0 +1,4 @@
+{% for key, values in data.items() %}[{{ key }}]
+{% for k, v in values.items() %}{{ k }}: {{ v }}
+{% endfor %}
+{% endfor %}
