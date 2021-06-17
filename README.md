@@ -18,7 +18,59 @@ This Docker-Image is meant to provide an installed version of [`parseDMARC`](htt
 
 ## `docker-compose.yml`
 
-To be defined.
+```yml
+---
+
+version: '3'
+
+services:
+
+  parsedmarc:
+    image: devopsansiblede/parsedmarc
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch
+    environment:
+      - cluster.name=parsedmarc
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data/elasticsearch/data/:/usr/share/elasticsearch/data/:z
+    restart: "unless-stopped"
+    healthcheck:
+      test: ["CMD", "curl","-s" ,"-f", "http://localhost:9200/_cat/health"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana
+    environment:
+      SERVER_NAME: "parsedmarc"
+      SERVER_HOST: "0.0.0.0"
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
+    ports:
+      - "80:5601"
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+...
+```
+
+Don't forget to import `export.ndjson` – follow instructions on [official documentation](https://domainaware.github.io/parsedmarc/#elasticsearch-and-kibana).
 
 ## last built
 
