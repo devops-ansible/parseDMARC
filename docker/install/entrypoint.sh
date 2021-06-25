@@ -26,6 +26,12 @@ if [ ! $( echo "${NO_ELC}" | tr '[:upper:]' '[:lower:]' ) = 'true' ]; then
     if [ "${c_elc_ssl}"   = "null" ]; then PARSE_JSON=$( echo "${PARSE_JSON}" | jq '.elasticsearch += {ssl: "'"${ELC_SSL}"'"}' ); fi
 fi
 
-echo "${PARSE_JSON}" | jq '{ data: . }' | j2 --format=json /config/parsedmarc.ini.j2 > /config/parsedmarc.ini
+echo "${PARSE_JSON}" | jq '{ data: . }' | j2 --format=json /templates/parsedmarc.ini.j2 > /config/parsedmarc.ini
+
+if [ ! -f "${GEOIP_CONF_FILE}" ]; then
+    j2 /templates/GeoIP.conf.j2 > "${GEOIP_CONF_FILE}"
+fi
+
+${GEOIP_INSTALL}/geoipupdate
 
 exec "$@"

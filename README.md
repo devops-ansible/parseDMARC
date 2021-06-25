@@ -15,6 +15,11 @@ This Docker-Image is meant to provide an installed version of [`parseDMARC`](htt
 | **ELC_HOST**      | *"http://elasticsearch"* | no          | part of `elasticsearch.hosts`: Host of Elastic Search – change if not using `docker-compose.yml` below. |
 | **ELC_PORT**      | *"9200"*          | no                 | part of `elasticsearch.hosts`: Port of Elastic Search – change if not using `docker-compose.yml` below. |
 | **ELC_SSL**       | *"False"*         | no                 | `elasticsearch.ssl`: SSL status of Elastic Search connection – change if not using `docker-compose.yml` below. |
+| **GEOIP_ACCOUNTID** | *""*            | yes                | `AccountID` value of your MaxMind GeoIP license config |
+| **GEOIP_LICENSEKEY** | *""*           | yes                | `LicenseKey` value of your MaxMind GeoIP license config |
+| **GEOIP_EDITIONIDS** | *"GeoLite2-ASN GeoLite2-City GeoLite2-Country"* | yes | `EditionIDs` value of your MaxMind GeoIP license config |
+| **GEOIP_INSTALL** | *"/usr/local/bin/geoipupdate"* | no    | Installation path for GeoIP |
+| **GEOIP_CONF_FILE** | *"/usr/local/etc/GeoIP.conf"* | no   | GeoIP Config file path |
 
 ## `docker-compose.yml`
 
@@ -69,6 +74,20 @@ services:
 
 ...
 ```
+
+## Configuration
+
+### GeoIP
+
+You need to configure the Analysing tool (`parsedmarc`) container for the usage of GeoIP – and need [licensing information](https://dev.maxmind.com/geoip/updating-databases?lang=en#2-obtain-geoipconf-with-account-information) for `geoipupdate` to work.
+
+If you are using a free licence ([register here](https://www.maxmind.com/en/geolite2/signup)), you can use the environmental variables `GEOIP_ACCOUNTID`, `GEOIP_LICENSEKEY` and `GEOIP_EDITIONIDS` described above.
+
+Alternatively you can bind a config file directly into the container at the path defined by env variable `GEOIP_CONF_FILE`.
+
+An update of the GeoIP database is performed on Container (re)start.
+
+### Kibana
 
 Don't forget to import `export.ndjson` – follow instructions on [official documentation](https://domainaware.github.io/parsedmarc/#elasticsearch-and-kibana).
 

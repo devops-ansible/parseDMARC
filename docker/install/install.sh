@@ -11,16 +11,16 @@ apt-get -y install \
 pip install --upgrade pip
 
 geoipupdate_release="https://github.com/maxmind/geoipupdate/releases/latest"
-geoipupdate_dst="/usr/local/bin/geoipupdate"
+geoipdb_dir="/usr/local/share/GeoIP"
 
 geoipupdate_url=$( curl -Ls -o /dev/null -w %{url_effective} ${geoipupdate_release} )
 geoipupdate_tgz=$( curl ${geoipupdate_url} | sed -E 's/.*href="(.*?linux_amd64\.tar\.gz).*/\1/g;t;d' )
 geoipupdate_dl="$( echo ${geoipupdate_url} | sed -E 's/(.*?:\/\/[^\/]+).*/\1/g;t;d' )/"
 geoipupdate_dl="${geoipupdate_dl}$( echo ${geoipupdate_tgz} | sed -E 's/(.*?:\/\/[^\/]+)?\/(.*)/\2/g;t;d' )"
 
-curl -Lo geoipupdate.tgz /install/${geoipupdate_dl}
-mkdir ${geoipupdate_dst}
-tar xfz geoipupdate.tgz --strip-components=1 -C ${geoipupdate_dst}
+curl -Lo geoipupdate.tgz ${geoipupdate_dl}
+mkdir "${GEOIP_INSTALL}" "${geoipdb_dir}"
+tar xfz geoipupdate.tgz --strip-components=1 -C "${GEOIP_INSTALL}"
 
 apt-get autoremove
 apt-get autoclean
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 mv /install/entrypoint.sh /usr/local/bin/entrypoint
 chmod a+x /usr/local/bin/entrypoint
 
-mkdir /config
-mv /install/parsedmarc.ini.j2 /config/parsedmarc.ini.j2
+mkdir /config /templates
+mv /install/*.j2 /templates/
 
 rm -rf /install
