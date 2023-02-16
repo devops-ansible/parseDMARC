@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu -o pipefail
+
 apt-get -y update
 apt-get -y install --no-install-recommends \
                 apt-utils
@@ -10,15 +12,14 @@ apt-get -y install \
 
 pip install --upgrade pip
 
-geoipupdate_release="https://github.com/maxmind/geoipupdate/releases/latest"
+geoip_github_api="https://api.github.com/repos/maxmind/geoipupdate/releases"
+geoip_github_release_id="$( curl "${geoip_github_api}" | jq -r "first( .[] ) | .id" )"
+geoip_github_assets_api="${geoip_github_api}/${geoip_github_release_id}/assets"
+geoip_github_release_tgz="$( curl "${geoip_github_assets_api}" | jq -r '.[] | select( .name | contains( "linux_amd64.tar.gz" ) ) | .browser_download_url' )"
+
 geoipdb_dir="/usr/local/share/GeoIP"
 
-geoipupdate_url=$( curl -Ls -o /dev/null -w %{url_effective} ${geoipupdate_release} )
-geoipupdate_tgz=$( curl ${geoipupdate_url} | sed -E 's/.*href="(.*?linux_amd64\.tar\.gz).*/\1/g;t;d' )
-geoipupdate_dl="$( echo ${geoipupdate_url} | sed -E 's/(.*?:\/\/[^\/]+).*/\1/g;t;d' )/"
-geoipupdate_dl="${geoipupdate_dl}$( echo ${geoipupdate_tgz} | sed -E 's/(.*?:\/\/[^\/]+)?\/(.*)/\2/g;t;d' )"
-
-curl -Lo geoipupdate.tgz ${geoipupdate_dl}
+curl -Lo geoipupdate.tgz ${geoip_github_release_tgz}
 mkdir "${GEOIP_INSTALL}" "${geoipdb_dir}"
 tar xfz geoipupdate.tgz --strip-components=1 -C "${GEOIP_INSTALL}"
 
