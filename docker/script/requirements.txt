@@ -1,2 +1,2 @@
 parsedmarc
-j2cli
+jinjanator
