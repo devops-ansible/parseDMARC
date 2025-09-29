@@ -7,8 +7,7 @@ apt-get -y install --no-install-recommends \
                 apt-utils
 apt-get -y upgrade
 apt-get -y install \
-                jq \
-                software-properties-common
+                jq
 
 pip install --upgrade pip
 
