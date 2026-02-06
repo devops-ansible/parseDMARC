@@ -1,5 +1,5 @@
 FROM python:latest
-MAINTAINER macwinnie <dev@macwinnie.me>
+LABEL org.opencontainers.image.authors="macwinnie <dev@macwinnie.me>"
 
 ENV WORKDIR="/project"
 ENV PARSE_JSON="{}"
